@@ -1,0 +1,78 @@
+[Version]
+Signature   = "$Windows NT$"     
+Class       = "ActivityMonitor"  ;指明了驱动的分组,必须指定.
+ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}  ;GUID 每个分组都有固定的GUID
+Provider    = "wrwrw" ;变量值 从STRING节中可以看到驱动提供者的名称 
+DriverVer = 02/26/2025,15.15.20.295
+CatalogFile = %DriverName%.cat   ;inf对应的cat 文件 可以不需要
+PnpLockDown	= 1
+LegacyUninstall = 1
+[DefaultInstall]
+OptionDesc          = %ServiceDescription%
+CopyFiles           = MiniFilter.DriverFiles
+[DefaultInstall.amd64]
+OptionDesc          = %ServiceDescription%
+CopyFiles           = MiniFilter.DriverFiles
+
+[DefaultInstall.x86]
+OptionDesc          = %ServiceDescription%
+CopyFiles           = MiniFilter.DriverFiles
+
+[DefaultInstall.Services]
+AddService          = %ServiceName%,,MiniFilter.Service
+[DefaultUninstall.amd64]
+DelFiles   = MiniFilter.DriverFiles
+[DefaultUninstall.x86]
+DelFiles   = MiniFilter.DriverFiles
+
+[DefaultUninstall]
+DelFiles   = MiniFilter.DriverFiles
+
+[DefaultUninstall.Services]
+DelService = %ServiceName%,0x200      ;Ensure service is stopped before deleting
+
+
+[DestinationDirs]
+DefaultDestDir          = 12    ;告诉我们驱动拷贝到哪里 13代表拷贝到%windir%
+MiniFilter.DriverFiles  = 12            ;%windir%\system32\drivers
+
+
+
+[MiniFilter.Service]                 ;服务的一些信息
+DisplayName      = %ServiceName%
+Description      = %ServiceDescription%
+ServiceBinary    = %12%\%DriverName%.sys        ;%windir%\system32\drivers\
+Dependencies     = "FltMgr"                     ;服务的依赖
+ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
+StartType        = 3                            ;SERVICE_DEMAND_START
+ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
+LoadOrderGroup   = "FSFilter Activity Monitor"  ;文件过滤分组
+AddReg           = MiniFilter.AddRegistry       ;文件过滤注册表需要添加的高度值等信息
+
+[MiniFilter.AddRegistry]
+HKR,,"DebugFlags",0x00010001 ,0x0
+HKR,"Instances","DefaultInstance",0x00000000,%DefaultInstance%
+HKR,"Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
+HKR,"Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
+
+[MiniFilter.DriverFiles]
+%DriverName%.sys
+
+[SourceDisksFiles]
+minifilter.sys = 1,,
+
+[SourceDisksNames]
+1 = %DiskId1%,,,
+
+[Manufacturer]
+
+[Strings]
+ServiceDescription      = "minifilter Driver"
+ServiceName             = "minifilter"
+DriverName              = "minifilter"
+DiskId1                 = "minifilter Device Installation Disk"
+
+DefaultInstance         = "minifilter Instance"
+Instance1.Name          = "minifilter Instance"
+Instance1.Altitude      = "370030"
+Instance1.Flags         = 0x0              ; Allow all attachments

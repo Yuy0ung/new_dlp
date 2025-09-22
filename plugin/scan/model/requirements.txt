@@ -1,0 +1,2 @@
+torch==2.3.1+cu121
+transformers==4.45.2
